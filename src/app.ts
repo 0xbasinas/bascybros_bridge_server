@@ -34,11 +34,10 @@ app.use(
   "*",
   cors({
     origin: (origin) => {
-      const allowed = [
-        process.env.ALLOWED_ORIGIN!,
-        "http://localhost:5173",
-        "http://localhost:3000",
-      ].filter(Boolean)
+      const allowed = [process.env.ALLOWED_ORIGIN!].filter(Boolean)
+      if (process.env.NODE_ENV !== "production") {
+        allowed.push("http://localhost:5173", "http://localhost:3000")
+      }
       if (origin && allowed.includes(origin)) return origin
       if (!origin && process.env.NODE_ENV !== "production") return "http://localhost:5173"
       return null

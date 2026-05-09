@@ -16,10 +16,17 @@ setInterval(() => {
 
 export function rateLimit(limit: number, windowMs: number) {
   return async (c: Context, next: Next) => {
-    const auth = c.get("auth") as { userId: string } | undefined
-    const forwardedFor = c.req.header("x-forwarded-for")?.split(",")[0]?.trim()
-    const realIp = c.req.header("x-real-ip")?.trim()
-    const key = auth?.userId ?? forwardedFor ?? realIp ?? "anonymous"
+    const authHeader = c.req.header("authorization")
+    const tokenHint = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice(7, 32)
+      : "anon"
+    const trustedProxyHeaders = process.env.TRUST_PROXY_HEADERS === "true"
+    const forwardedFor = trustedProxyHeaders
+      ? c.req.header("x-forwarded-for")?.split(",")[0]?.trim()
+      : undefined
+    const realIp = trustedProxyHeaders ? c.req.header("x-real-ip")?.trim() : undefined
+    const route = new URL(c.req.url).pathname
+    const key = `${route}:${tokenHint}:${forwardedFor ?? realIp ?? "noip"}`
     const now = Date.now()
     const bucket = buckets.get(key)
 
