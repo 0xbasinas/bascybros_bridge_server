@@ -26,6 +26,48 @@ app.use("*", async (c, next) => {
     c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
   }
 })
+app.use("/api/health", rateLimit(120, 60_000))
+app.use("/api/*", rateLimit(200, 60_000))
+app.use("/api/notes/*", rateLimit(60, 60_000))
+app.use("/api/resources/*", rateLimit(60, 60_000))
+app.use("/api/commands/*", rateLimit(60, 60_000))
+app.use("/api/snippets/*", rateLimit(60, 60_000))
+app.use("/api/tasks/*", rateLimit(60, 60_000))
+app.use(
+  "/api/notes/*",
+  rateLimit(30, 60_000, {
+    methods: ["POST", "PUT", "PATCH", "DELETE"],
+    keyPrefix: "write",
+  })
+)
+app.use(
+  "/api/resources/*",
+  rateLimit(30, 60_000, {
+    methods: ["POST", "PUT", "PATCH", "DELETE"],
+    keyPrefix: "write",
+  })
+)
+app.use(
+  "/api/commands/*",
+  rateLimit(30, 60_000, {
+    methods: ["POST", "PUT", "PATCH", "DELETE"],
+    keyPrefix: "write",
+  })
+)
+app.use(
+  "/api/snippets/*",
+  rateLimit(30, 60_000, {
+    methods: ["POST", "PUT", "PATCH", "DELETE"],
+    keyPrefix: "write",
+  })
+)
+app.use(
+  "/api/tasks/*",
+  rateLimit(30, 60_000, {
+    methods: ["POST", "PUT", "PATCH", "DELETE"],
+    keyPrefix: "write",
+  })
+)
 app.use("/api/search/*", rateLimit(60, 60_000))
 app.use("/api/upload/*", rateLimit(20, 60_000))
 app.use("/api/files/*", rateLimit(60, 60_000))
